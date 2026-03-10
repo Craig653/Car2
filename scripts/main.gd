@@ -2,42 +2,52 @@ extends Node2D
 
 @export var cars_to_park: int = 10
 @export var next_level_scene: String = ""
-@export var spawn_position: Vector2 = Vector2(100, 100)
+@export var spawn_position: Vector2 = Vector2(150, 150)
 @export var spawn_rotation: float = 1.5708
 
 @export_group("Environmental Overrides")
 @export var friction_mult: float = 1.0
 @export var drag_mult: float = 1.0
 @export var wind_force: Vector2 = Vector2.ZERO
-@export var ambient_type: AudioManager.AmbientType = AudioManager.AmbientType.NONE
+@export var ambient_type: int = 0
 
-@onready var brake_bar = $CanvasLayer/UI/BrakeBar
-@onready var status_label = $CanvasLayer/UI/StatusLabel
-@onready var instructions = $CanvasLayer/UI/Instructions
-@onready var car_count_label = $CanvasLayer/UI/CarCountLabel
-@onready var health_label = $CanvasLayer/UI/HealthLabel
+@onready var brake_bar = get_node_or_null("CanvasLayer/UI/BrakeBar")
+@onready var status_label = get_node_or_null("CanvasLayer/UI/StatusLabel")
+@onready var car_count_label = get_node_or_null("CanvasLayer/UI/CarCountLabel")
+@onready var health_label = get_node_or_null("CanvasLayer/UI/HealthLabel")
+@onready var instructions = get_node_or_null("CanvasLayer/UI/Instructions")
 
-var car_scene = preload("res://scenes/car.tscn")
+var car_scene = load("res://scenes/car.tscn")
 var current_car: CharacterBody2D = null
 var cars_parked_count: int = 0
-var game_started: bool = false
 var waiting_for_next: bool = false
 var all_spots: Array = []
 var shake_intensity: float = 0.0
 var shake_timer: float = 0.0
-@onready var main_camera = $Camera2D if has_node("Camera2D") else null
+var main_camera: Camera2D = null
 
 func _ready() -> void:
-	AudioManager.set_ambient(ambient_type)
+	print("--- Level Start: ", name, " ---")
+	randomize() # Ensure fresh random seed
 	
-	if not main_camera:
-		main_camera = Camera2D.new()
-		main_camera.position = Vector2(640, 360) # Center of screen
-		add_child(main_camera)
+	# Ambient Audio
+	if has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").set_ambient(ambient_type)
+	
+	# Camera
+	main_camera = Camera2D.new()
+	main_camera.position = Vector2(640, 360)
+	add_child(main_camera)
+	main_camera.make_current()
 
-	if has_node("ParkingSpots"):
-		_find_spots_recursive($ParkingSpots)
+	# Find Spots
+	all_spots.clear()
+	var spots_node = get_node_or_null("ParkingSpots")
+	if spots_node:
+		_find_spots_recursive(spots_node)
+	print("Found ", all_spots.size(), " spots.")
 	
+	# Spawn first car
 	_spawn_new_car()
 	_update_ui()
 
@@ -46,66 +56,59 @@ func _find_spots_recursive(node: Node) -> void:
 		if child.has_method("set_as_target"):
 			all_spots.append(child)
 			child.set_as_target(false)
-		else:
-			_find_spots_recursive(child)
+		_find_spots_recursive(child)
 
 func _process(delta: float) -> void:
 	if main_camera and shake_timer > 0:
 		shake_timer -= delta
 		main_camera.offset = Vector2(randf_range(-shake_intensity, shake_intensity), randf_range(-shake_intensity, shake_intensity))
-		if shake_timer <= 0:
-			main_camera.offset = Vector2.ZERO
+		if shake_timer <= 0: main_camera.offset = Vector2.ZERO
 
 	if Input.is_action_just_pressed("menu"):
-		AudioManager.set_ambient(AudioManager.AmbientType.NONE)
+		if has_node("/root/AudioManager"):
+			get_node("/root/AudioManager").set_ambient(0)
 		get_tree().change_scene_to_file("res://scenes/menu.tscn")
-		return
 
 	if waiting_for_next:
-		if Input.is_action_just_pressed("interact"):
+		if Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("drift"):
 			if cars_parked_count >= cars_to_park:
-				_load_next_level()
+				if next_level_scene != "":
+					get_tree().change_scene_to_file(next_level_scene)
 			else:
 				_spawn_new_car()
-		return
-
-	if current_car and not game_started:
-		if Input.is_action_just_pressed("interact"):
-			_start_handoff()
-
-func shake_screen(intensity: float, duration: float) -> void:
-	shake_intensity = intensity
-	shake_timer = duration
 
 func _spawn_new_car() -> void:
+	print("Spawning car...")
 	waiting_for_next = false
-	game_started = true
 	
-	# Select new unoccupied target spot
+	# UI Reset
+	if status_label: 
+		status_label.text = "PARK IT!"
+		status_label.modulate = Color.WHITE
+	if instructions: instructions.hide()
+	if brake_bar: brake_bar.modulate = Color.WHITE
+	
+	# Pick Spot
 	if all_spots.size() > 0:
 		for s in all_spots: s.set_as_target(false)
-		
-		# Filter unoccupied spots
-		var available_spots = all_spots.filter(func(s): return not s.is_occupied)
-		
-		if available_spots.size() > 0:
-			var target = available_spots.pick_random()
-			target.set_as_target(true)
-		else:
-			print("No spots left!")
+		var available = all_spots.filter(func(s): return not s.is_occupied)
+		if available.size() > 0:
+			available.pick_random().set_as_target(true)
 	
+	# Create Car
+	if not car_scene:
+		print("CRITICAL: car_scene is null!")
+		return
+		
 	current_car = car_scene.instantiate()
 	current_car.position = spawn_position
 	current_car.rotation = spawn_rotation
-	current_car.car_type = randi() % 5
+	current_car.car_type = randi() % 5 # Randomly pick 0-4 (SPORTS, LIMO, BEATER, EV, STANDARD)
+	print("Spawning Car Type index: ", current_car.car_type)
 	
 	add_child(current_car)
 	
-	# Apply Level Overrides
-	current_car.friction_multiplier = friction_mult
-	current_car.drag_multiplier = drag_mult
-	current_car.external_force = wind_force
-	
+	# Setup Connections
 	current_car.friction_updated.connect(_on_friction_updated)
 	current_car.overheated.connect(_on_overheated)
 	current_car.brakes_recovered.connect(_on_brakes_recovered)
@@ -113,64 +116,54 @@ func _spawn_new_car() -> void:
 	current_car.crashed.connect(_on_crashed)
 	current_car.health_updated.connect(_on_health_updated)
 	
-	# Start with player control immediately
-	current_car.take_control()
+	# Apply Physics
+	current_car.friction_multiplier = friction_mult
+	current_car.drag_multiplier = drag_mult
+	current_car.external_force = wind_force
 	
-	brake_bar.value = 100
-	brake_bar.modulate = Color.WHITE
-	status_label.text = "PARK IT!" # Update status immediately
-	status_label.modulate = Color.WHITE
-	instructions.hide() # No need for instructions
-	_update_ui()
-
-func _start_handoff() -> void:
-	game_started = true
 	current_car.take_control()
-	status_label.text = "PARK IT!"
-	instructions.hide()
+	print("Car spawned and control given.")
 
 func _update_ui() -> void:
-	car_count_label.text = "CARS PARKED: %d / %d" % [cars_parked_count, cars_to_park]
+	if car_count_label:
+		car_count_label.text = "CARS PARKED: %d / %d" % [cars_parked_count, cars_to_park]
+
+func shake_screen(intensity: float, duration: float) -> void:
+	shake_intensity = intensity
+	shake_timer = duration
 
 func _on_friction_updated(current: float, max_val: float) -> void:
-	brake_bar.value = (current / max_val) * 100.0
+	if brake_bar: brake_bar.value = (current / max_val) * 100.0
 
 func _on_health_updated(current: int, max_val: int) -> void:
-	var h_text = "CONDITION: "
-	for i in range(max_val):
-		h_text += "■" if i < current else "□"
-	health_label.text = h_text
-	health_label.modulate = Color.RED if current <= 1 else Color.WHITE
+	if health_label:
+		var h = ""
+		for i in range(max_val): h += "■" if i < current else "□"
+		health_label.text = "CONDITION: " + h
+		health_label.modulate = Color.RED if current <= 1 else Color.WHITE
 
-func _on_overheated(_duration: float) -> void:
-	status_label.text = "BRAKES OVERHEATED!"
-	brake_bar.modulate = Color.RED
+func _on_overheated(_dur: float) -> void:
+	if status_label: status_label.text = "OVERHEATED!"
+	if brake_bar: brake_bar.modulate = Color.RED
 
 func _on_brakes_recovered() -> void:
-	status_label.text = "BRAKES RECOVERED"
-	brake_bar.modulate = Color.WHITE
+	if status_label: status_label.text = "PARK IT!"
+	if brake_bar: brake_bar.modulate = Color.WHITE
 
 func _on_parked() -> void:
 	cars_parked_count += 1
-	status_label.text = "PARKED!"
-	status_label.modulate = Color.GREEN
 	waiting_for_next = true
+	if status_label: 
+		status_label.text = "PARKED!"
+		status_label.modulate = Color.GREEN
+	if instructions:
+		instructions.text = "WELL DONE! PRESS [SHIFT]"
+		instructions.show()
 	_update_ui()
-	
-	if cars_parked_count >= cars_to_park:
-		instructions.text = "LEVEL COMPLETE!\nPRESS [E] FOR NEXT LEVEL"
-	else:
-		instructions.text = "WELL DONE!\nPRESS [E] FOR NEXT CAR"
-	instructions.show()
 
 func _on_crashed() -> void:
-	status_label.text = "TOTALED! RESTARTING..."
-	status_label.modulate = Color.RED
-	await get_tree().create_timer(2.0).timeout
+	if status_label: 
+		status_label.text = "CRASHED!"
+		status_label.modulate = Color.RED
+	await get_tree().create_timer(1.0).timeout
 	get_tree().reload_current_scene()
-
-func _load_next_level() -> void:
-	if next_level_scene != "":
-		get_tree().change_scene_to_file(next_level_scene)
-	else:
-		status_label.text = "ALL LEVELS COMPLETE!"

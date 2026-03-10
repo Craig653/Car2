@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://d1cop1mfnqa6l"]
+[gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" uid="uid://dy840g4onvcoh" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="PackedScene" uid="uid://cvv6gd4u4h4vq" path="res://scenes/parking_spot.tscn" id="2_spot"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/parking_spot.tscn" id="2_spot"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(2000, 40)
@@ -14,6 +14,9 @@ size = Vector2(400, 40)
 
 [node name="MegaLot" type="Node2D"]
 script = ExtResource("1_main")
+cars_to_park = 10
+spawn_position = Vector2(100, 100)
+spawn_rotation = 1.5708
 
 [node name="Asphalt" type="ColorRect" parent="."]
 offset_right = 1280.0
@@ -24,107 +27,83 @@ color = Color(0.12, 0.12, 0.15, 1)
 
 [node name="Row1" type="Node2D" parent="ParkingSpots"]
 position = Vector2(400, 250)
-
 [node name="S1" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
 position = Vector2(-120, 0)
-
 [node name="S2" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
 position = Vector2(-40, 0)
-
 [node name="S3" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
 position = Vector2(40, 0)
-
 [node name="S4" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
 position = Vector2(120, 0)
 
 [node name="Row2" type="Node2D" parent="ParkingSpots"]
 position = Vector2(400, 470)
-
 [node name="S1" parent="ParkingSpots/Row2" instance=ExtResource("2_spot")]
 position = Vector2(-120, 0)
-
 [node name="S2" parent="ParkingSpots/Row2" instance=ExtResource("2_spot")]
 position = Vector2(-40, 0)
-
 [node name="S3" parent="ParkingSpots/Row2" instance=ExtResource("2_spot")]
 position = Vector2(40, 0)
-
 [node name="S4" parent="ParkingSpots/Row2" instance=ExtResource("2_spot")]
 position = Vector2(120, 0)
 
 [node name="Row3" type="Node2D" parent="ParkingSpots"]
 position = Vector2(880, 250)
-
 [node name="S1" parent="ParkingSpots/Row3" instance=ExtResource("2_spot")]
 position = Vector2(-120, 0)
-
 [node name="S2" parent="ParkingSpots/Row3" instance=ExtResource("2_spot")]
 position = Vector2(-40, 0)
-
 [node name="S3" parent="ParkingSpots/Row3" instance=ExtResource("2_spot")]
 position = Vector2(40, 0)
-
 [node name="S4" parent="ParkingSpots/Row3" instance=ExtResource("2_spot")]
 position = Vector2(120, 0)
 
 [node name="Row4" type="Node2D" parent="ParkingSpots"]
 position = Vector2(880, 470)
-
 [node name="S1" parent="ParkingSpots/Row4" instance=ExtResource("2_spot")]
 position = Vector2(-120, 0)
-
 [node name="S2" parent="ParkingSpots/Row4" instance=ExtResource("2_spot")]
 position = Vector2(-40, 0)
-
 [node name="S3" parent="ParkingSpots/Row4" instance=ExtResource("2_spot")]
 position = Vector2(40, 0)
-
 [node name="S4" parent="ParkingSpots/Row4" instance=ExtResource("2_spot")]
 position = Vector2(120, 0)
 
 [node name="Environment" type="Node2D" parent="."]
 
 [node name="Curbs" type="StaticBody2D" parent="Environment"]
-
 [node name="Top" type="CollisionShape2D" parent="Environment/Curbs"]
 position = Vector2(640, -20)
 shape = SubResource("RectangleShape2D_wall")
-
 [node name="Bottom" type="CollisionShape2D" parent="Environment/Curbs"]
 position = Vector2(640, 740)
 shape = SubResource("RectangleShape2D_wall")
-
 [node name="Left" type="CollisionShape2D" parent="Environment/Curbs"]
 position = Vector2(-20, 360)
 shape = SubResource("RectangleShape2D_vwall")
-
 [node name="Right" type="CollisionShape2D" parent="Environment/Curbs"]
 position = Vector2(1300, 360)
 shape = SubResource("RectangleShape2D_vwall")
 
 [node name="Island1" type="StaticBody2D" parent="Environment"]
 position = Vector2(400, 360)
-
 [node name="Visual" type="ColorRect" parent="Environment/Island1"]
 offset_left = -200.0
 offset_top = -10.0
 offset_right = 200.0
 offset_bottom = 10.0
 color = Color(0.1, 0.4, 0.1, 1)
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Island1"]
 shape = SubResource("RectangleShape2D_island")
 
 [node name="Island2" type="StaticBody2D" parent="Environment"]
 position = Vector2(880, 360)
-
 [node name="Visual" type="ColorRect" parent="Environment/Island2"]
 offset_left = -200.0
 offset_top = -10.0
 offset_right = 200.0
 offset_bottom = 10.0
 color = Color(0.1, 0.4, 0.1, 1)
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Island2"]
 shape = SubResource("RectangleShape2D_island")
 
@@ -216,6 +195,5 @@ offset_right = 200.0
 offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "PRESS [E] OR [BUTTON A]
-TO TAKE CONTROL"
+text = "GO!"
 horizontal_alignment = 1

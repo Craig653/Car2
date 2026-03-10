@@ -9,9 +9,6 @@ size = Vector2(2000, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vwall"]
 size = Vector2(40, 1000)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_island"]
-size = Vector2(400, 40)
-
 [node name="SnowLot" type="Node2D"]
 script = ExtResource("1_main")
 cars_to_park = 5
@@ -35,8 +32,6 @@ position = Vector2(-120, 0)
 position = Vector2(-40, 0)
 [node name="S3" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
 position = Vector2(40, 0)
-[node name="S4" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
-position = Vector2(120, 0)
 
 [node name="Environment" type="Node2D" parent="."]
 
@@ -74,6 +69,22 @@ grow_horizontal = 2
 grow_vertical = 0
 value = 100.0
 show_percentage = false
+
+[node name="Label" type="Label" parent="CanvasLayer/UI/BrakeBar"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -11.5
+offset_right = 50.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "BRAKE POWER"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="CanvasLayer/UI"]
 layout_mode = 1
