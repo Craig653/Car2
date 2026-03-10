@@ -1,6 +1,8 @@
 extends Control
 
 func _ready() -> void:
+	$Grid/Standard.grab_focus() # Enable controller navigation immediately
+	
 	$Grid/Standard.pressed.connect(func(): _on_level_button_pressed("res://scenes/mega_lot.tscn"))
 	$Grid/Rain.pressed.connect(func(): _on_level_button_pressed("res://scenes/rain_lot.tscn"))
 	$Grid/Snow.pressed.connect(func(): _on_level_button_pressed("res://scenes/snow_lot.tscn"))

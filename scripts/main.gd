@@ -70,7 +70,7 @@ func _process(delta: float) -> void:
 		get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 	if waiting_for_next:
-		if Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("drift"):
+		if Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("drift") or Input.is_action_just_pressed("ui_accept"):
 			if cars_parked_count >= cars_to_park:
 				if next_level_scene != "":
 					get_tree().change_scene_to_file(next_level_scene)
@@ -157,7 +157,7 @@ func _on_parked() -> void:
 		status_label.text = "PARKED!"
 		status_label.modulate = Color.GREEN
 	if instructions:
-		instructions.text = "WELL DONE! PRESS [SHIFT]"
+		instructions.text = "WELL DONE! PRESS [A / SHIFT]"
 		instructions.show()
 	_update_ui()
 
