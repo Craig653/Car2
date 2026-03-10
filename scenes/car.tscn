@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://4ntrdtnyj647"]
+
+[ext_resource type="Script" uid="uid://do5wfspqcrc8p" path="res://scripts/car.gd" id="1_car"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_car"]
+radius = 15.0
+height = 70.0
+
+[node name="Car" type="CharacterBody2D"]
+script = ExtResource("1_car")
+
+[node name="Shadow" type="Polygon2D" parent="."]
+modulate = Color(0, 0, 0, 0.3)
+position = Vector2(4, 4)
+polygon = PackedVector2Array(-22, -42, 22, -42, 22, 42, -22, 42)
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.2, 0.5, 0.8, 1)
+polygon = PackedVector2Array(-20, -40, 20, -40, 20, 40, -20, 40)
+
+[node name="Roof" type="Polygon2D" parent="."]
+color = Color(0.1, 0.3, 0.6, 1)
+polygon = PackedVector2Array(-15, -15, 15, -15, 18, 25, -18, 25)
+
+[node name="Windshield" type="Polygon2D" parent="Roof"]
+color = Color(0.4, 0.7, 1, 0.6)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, -5, -14, -5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_car")
+
+[node name="Lights" type="Node2D" parent="."]
+
+[node name="HeadlightL" type="Polygon2D" parent="Lights"]
+color = Color(1, 1, 0.8, 0.4)
+polygon = PackedVector2Array(-18, -40, -5, -40, -20, -100, -50, -80)
+
+[node name="HeadlightR" type="Polygon2D" parent="Lights"]
+color = Color(1, 1, 0.8, 0.4)
+polygon = PackedVector2Array(18, -40, 5, -40, 20, -100, 50, -80)
+
+[node name="BrakeLightL" type="ColorRect" parent="Lights"]
+unique_name_in_owner = true
+offset_left = -18.0
+offset_top = 35.0
+offset_right = -8.0
+offset_bottom = 40.0
+color = Color(0.5, 0, 0, 1)
+
+[node name="BrakeLightR" type="ColorRect" parent="Lights"]
+unique_name_in_owner = true
+offset_left = 8.0
+offset_top = 35.0
+offset_right = 18.0
+offset_bottom = 40.0
+color = Color(0.5, 0, 0, 1)

@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/skidmark.gd" id="1_script"]
+
+[node name="Skidmark" type="Line2D"]
+width = 16.0
+default_color = Color(0, 0, 0, 0.4)
+script = ExtResource("1_script")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+autostart = true

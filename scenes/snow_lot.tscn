@@ -1,0 +1,133 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/parking_spot.tscn" id="2_spot"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(2000, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vwall"]
+size = Vector2(40, 1000)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_island"]
+size = Vector2(400, 40)
+
+[node name="SnowLot" type="Node2D"]
+script = ExtResource("1_main")
+cars_to_park = 5
+friction_mult = 0.2
+ambient_type = 4
+spawn_position = Vector2(100, 100)
+spawn_rotation = 1.5708
+
+[node name="Asphalt" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.9, 0.95, 1, 1)
+
+[node name="ParkingSpots" type="Node2D" parent="."]
+
+[node name="Row1" type="Node2D" parent="ParkingSpots"]
+position = Vector2(400, 250)
+[node name="S1" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
+position = Vector2(-120, 0)
+[node name="S2" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
+position = Vector2(-40, 0)
+[node name="S3" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
+position = Vector2(40, 0)
+[node name="S4" parent="ParkingSpots/Row1" instance=ExtResource("2_spot")]
+position = Vector2(120, 0)
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="Curbs" type="StaticBody2D" parent="Environment"]
+[node name="Top" type="CollisionShape2D" parent="Environment/Curbs"]
+position = Vector2(640, -20)
+shape = SubResource("RectangleShape2D_wall")
+[node name="Bottom" type="CollisionShape2D" parent="Environment/Curbs"]
+position = Vector2(640, 740)
+shape = SubResource("RectangleShape2D_wall")
+[node name="Left" type="CollisionShape2D" parent="Environment/Curbs"]
+position = Vector2(-20, 360)
+shape = SubResource("RectangleShape2D_vwall")
+[node name="Right" type="CollisionShape2D" parent="Environment/Curbs"]
+position = Vector2(1300, 360)
+shape = SubResource("RectangleShape2D_vwall")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="UI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BrakeBar" type="ProgressBar" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+show_percentage = false
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "SNOWY VALET"
+horizontal_alignment = 1
+
+[node name="CarCountLabel" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 60.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "CARS PARKED: 0/5"
+horizontal_alignment = 2
+
+[node name="HealthLabel" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 250.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "CONDITION: ■■■"
+
+[node name="Instructions" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 1, 1)
+text = "EXTREMELY SLICK"
+horizontal_alignment = 1

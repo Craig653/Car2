@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://hhmkycnnfq4y"]
+
+[ext_resource type="Script" uid="uid://cet0byswy5126" path="res://scripts/parking_zone.gd" id="1_parking"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_zone"]
+size = Vector2(100, 150)
+
+[node name="ParkingZone" type="Area2D"]
+script = ExtResource("1_parking")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(1, 0.4, 0, 0.3)
+polygon = PackedVector2Array(-50, -75, 50, -75, 50, 75, -50, 75)
+
+[node name="Outline" type="Line2D" parent="Visual"]
+points = PackedVector2Array(-50, -75, 50, -75, 50, 75, -50, 75, -50, -75)
+width = 2.0
+default_color = Color(1, 0.4, 0, 0.8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_zone")
